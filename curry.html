@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    /*
+    函数柯里化是把接受多个参数的函数变换成接受一个单一参数（最初函数的第一个参数）的函数，并且返回接受余下的参数而且返回结果的新函数的技术。
+    函数柯里化的主要作用：
+    参数复用
+    提前返回 – 返回接受余下的参数且返回结果的新函数
+    延迟执行 – 返回新函数，等待执行
+    */
+
+    function add(num1, num2, num3) {
+      return num1 + num2 + num3;
+    }
+
+
+
+    // 第一种
+    function curry1(fn) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      return function() {
+        var innerArgs = Array.prototype.slice.call(arguments);
+        var finalArgs = args.concat(innerArgs);
+        return fn.apply(null, finalArgs);
+      }
+    }
+    var addCurried1 = curry1(add, 5);
+    console.log(addCurried1(2, 3));
+    console.log(curry1(add)(5, 2, 3));
+    console.log(curry1(add, 5)(2, 3));
+    console.log(curry1(add, 5, 2)(3));
+    console.log(curry1(add, 5, 2, 3)());
+    // console.log(curry1()(add, 5, 2, 3)); // 报错，这种方法最多两层调用
+    console.log('\n');
+
+
+
+    // 第二种
+    function curry2(fn) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      if (args.length < fn.length) {
+        return function() {
+          var innerArgs = Array.prototype.slice.call(arguments);
+          var finalArgs = args.concat(innerArgs);
+          return curry2(fn, ...finalArgs);
+        }
+      } else {
+        return fn.apply(null, args);
+      }
+    }
+
+    var addCurried2 = curry2(add);
+    // console.log(addCurried2)
+    console.log(addCurried2(4, 5, 6));
+
+    console.log(addCurried2(4, 5)(6));
+    console.log(addCurried2(4)(5, 6));
+    console.log(addCurried2()(4, 5, 6));
+
+    console.log(addCurried2(4)(5)(6));
+    console.log('\n');
+
+
+    // 第三种
+    const curryES6 = (fn, ...args) =>
+      args.length < fn.length
+        ? (...arguments) => curryES6(fn, ...args, ...arguments)
+        : fn(...args)
+    var addCurryES6 = curryES6(add);
+    
+    console.log(addCurryES6(5)(6)(9)); // 20
+
+    console.log(addCurryES6(5, 6)(9)); // 20
+    console.log(addCurryES6(5)(6, 9)); // 20
+    console.log(addCurryES6()(5, 6, 9)); // 20
+
+    console.log(addCurryES6(5, 6, 9)); // 20
+  </script>
+</body>
+</html>
